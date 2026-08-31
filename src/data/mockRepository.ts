@@ -94,6 +94,11 @@ export class MockRepository implements Repository {
     if (etape) etape.date_prevue = datePrevue;
   }
 
+  async assignerPraticien(etapePatientId: string, praticienId: string | null): Promise<void> {
+    const etape = this.etapes.find((e) => e.id === etapePatientId);
+    if (etape) etape.praticien_id = praticienId;
+  }
+
   async ajouterNote(input: {
     parcoursPatientId: string;
     etapePatientId: string | null;

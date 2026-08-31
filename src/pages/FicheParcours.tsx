@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { FichePatient, Praticien, StatutEtape } from "../types";
 import {
   BadgeEtape, BadgeParcours, Progression, SPECIALITES, dateCourte, dateHeure,
+  depuisInputDateTime, versInputDateTime,
 } from "../components/ui";
 
 interface Props {
@@ -11,10 +12,13 @@ interface Props {
   onRetour?: () => void;
   onChangerStatut: (etapePatientId: string, statut: StatutEtape) => void;
   onAjouterNote: (contenu: string, praticienId: string | null) => void;
+  onAssignerPraticien?: (etapePatientId: string, praticienId: string | null) => void;
+  onPlanifier?: (etapePatientId: string, datePrevue: string | null) => void;
 }
 
 export function FicheParcours({
   fiche, praticiens, lectureSeule = false, onRetour, onChangerStatut, onAjouterNote,
+  onAssignerPraticien, onPlanifier,
 }: Props) {
   const [note, setNote] = useState("");
   const [auteur, setAuteur] = useState(praticiens[0]?.id ?? "");
@@ -104,6 +108,42 @@ export function FicheParcours({
                             <button onClick={() => onChangerStatut(instance.id, "ignoree")}>
                               Non retenue
                             </button>
+                          )}
+                        </div>
+                      )}
+
+                      {!lectureSeule && onAssignerPraticien && onPlanifier && (
+                        <div className="coordination">
+                          <label>
+                            Praticien assigné
+                            <select
+                              value={instance.praticien_id ?? ""}
+                              onChange={(e) =>
+                                onAssignerPraticien(instance.id, e.target.value || null)
+                              }
+                            >
+                              <option value="">Non assigné</option>
+                              {praticiens.map((p) => (
+                                <option key={p.id} value={p.id}>
+                                  {p.nom} — {SPECIALITES[p.specialite]}
+                                </option>
+                              ))}
+                            </select>
+                          </label>
+                          <label>
+                            Date prévue
+                            <input
+                              type="datetime-local"
+                              value={versInputDateTime(instance.date_prevue)}
+                              onChange={(e) =>
+                                onPlanifier(instance.id, depuisInputDateTime(e.target.value))
+                              }
+                            />
+                          </label>
+                          {modele.specialite_requise && (
+                            <span className="hint">
+                              Spécialité attendue : {SPECIALITES[modele.specialite_requise]}
+                            </span>
                           )}
                         </div>
                       )}

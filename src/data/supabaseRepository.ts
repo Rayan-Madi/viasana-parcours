@@ -131,6 +131,14 @@ export class SupabaseRepository implements Repository {
     if (error) throw error;
   }
 
+  async assignerPraticien(etapePatientId: string, praticienId: string | null): Promise<void> {
+    const { error } = await this.db
+      .from("etape_patient")
+      .update({ praticien_id: praticienId })
+      .eq("id", etapePatientId);
+    if (error) throw error;
+  }
+
   async ajouterNote(input: {
     parcoursPatientId: string;
     etapePatientId: string | null;

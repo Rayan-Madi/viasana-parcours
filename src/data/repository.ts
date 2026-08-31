@@ -23,6 +23,7 @@ export interface Repository {
 
   changerStatutEtape(etapePatientId: string, statut: StatutEtape): Promise<void>;
   planifierEtape(etapePatientId: string, datePrevue: string | null): Promise<void>;
+  assignerPraticien(etapePatientId: string, praticienId: string | null): Promise<void>;
 
   ajouterNote(input: {
     parcoursPatientId: string;

@@ -57,6 +57,17 @@ export default function App() {
     await rafraichirListe();
   };
 
+  const assignerPraticien = async (etapeId: string, praticienId: string | null) => {
+    await repository.assignerPraticien(etapeId, praticienId);
+    if (selection) await rafraichirFiche(selection);
+  };
+
+  const planifier = async (etapeId: string, datePrevue: string | null) => {
+    await repository.planifierEtape(etapeId, datePrevue);
+    if (selection) await rafraichirFiche(selection);
+    await rafraichirListe();
+  };
+
   const ajouterNote = async (contenu: string, praticienId: string | null) => {
     if (!selection) return;
     await repository.ajouterNote({
@@ -114,6 +125,8 @@ export default function App() {
             onRetour={() => setVue("liste")}
             onChangerStatut={changerStatut}
             onAjouterNote={ajouterNote}
+            onAssignerPraticien={assignerPraticien}
+            onPlanifier={planifier}
           />
         )}
 

@@ -72,3 +72,16 @@ export const SPECIALITES: Record<string, string> = {
   dieteticien: "Diététicien",
   coordinateur: "Coordinateur",
 };
+
+/** ISO vers la valeur attendue par un input datetime-local (heure locale). */
+export function versInputDateTime(iso: string | null): string {
+  if (!iso) return "";
+  const d = new Date(iso);
+  const p = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+}
+
+/** Valeur d'un input datetime-local vers ISO, ou null si le champ est vide. */
+export function depuisInputDateTime(valeur: string): string | null {
+  return valeur ? new Date(valeur).toISOString() : null;
+}

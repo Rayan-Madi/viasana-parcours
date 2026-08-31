@@ -102,12 +102,20 @@ affichent exactement le même parcours.
 - fiche patient : identité, objectif, réponses du questionnaire, praticiens impliqués,
   frise des étapes, prochaines séances, notes
 - changement de statut d'une étape et ajout d'une note de suivi
+- **assignation d'un praticien et planification d'une date, étape par étape**, avec rappel
+  de la spécialité attendue par le modèle de parcours
 
 **Interface patient**
 
 - questionnaire préalable à remplir ou à consulter
 - parcours en lecture seule, avec ce qui est fait, en cours et à venir
 - prochaines séances et notes de suivi
+
+L'assignation mérite un mot. Leur offre décrit un coordinateur qui « gère les rendez-vous et
+s'assure que les praticiens partagent les documents ». Assigner un praticien à une étape est
+donc un acte quotidien du métier, pas un réglage technique : s'il fallait un accès à la base
+ou un développeur pour le faire, l'outil raterait ce qu'il est censé résoudre. C'est pour
+cette raison qu'il se fait depuis la fiche, en deux clics.
 
 Transmettre le questionnaire clôture automatiquement la première étape et fait passer la
 suivante en cours. C'est le seul automatisme du prototype, et il correspond à ce que

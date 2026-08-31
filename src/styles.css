@@ -348,3 +348,18 @@ dl.facts dd { margin: 0; }
   .note-form .row { flex-direction: column; align-items: stretch; }
   .note-form select, .note-form .primary { width: 100%; }
 }
+
+/* ----------------------------------------------------------- erreurs */
+.erreur {
+  background: #fdf0ef;
+  border: 1px solid #f0c9c6;
+  color: #8c1c17;
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 18px;
+  display: grid;
+  gap: 8px;
+  justify-items: start;
+  font-size: 14px;
+}
+.erreur .link-btn { border-color: #d9a6a2; color: #8c1c17; background: transparent; }

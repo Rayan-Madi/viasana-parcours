@@ -24,23 +24,37 @@ export default function App() {
   const [selection, setSelection] = useState<string | null>(null);
   const [fiche, setFiche] = useState<FichePatient | null>(null);
   const [chargement, setChargement] = useState(true);
+  const [erreur, setErreur] = useState<string | null>(null);
 
   const rafraichirListe = useCallback(async () => {
-    const [l, a, m, p] = await Promise.all([
-      repository.listerPatients(),
-      repository.listerAlertes(),
-      repository.listerParcoursModeles(),
-      repository.listerPraticiens(),
-    ]);
-    setLignes(l);
-    setAlertes(a);
-    setModeles(m);
-    setPraticiens(p);
-    setChargement(false);
+    try {
+      const [l, a, m, p] = await Promise.all([
+        repository.listerPatients(),
+        repository.listerAlertes(),
+        repository.listerParcoursModeles(),
+        repository.listerPraticiens(),
+      ]);
+      setLignes(l);
+      setAlertes(a);
+      setModeles(m);
+      setPraticiens(p);
+      setErreur(null);
+    } catch (e) {
+      // Sans ce garde-fou, une base injoignable donnerait une page blanche
+      // sans aucune indication de ce qui s'est passé.
+      setErreur(e instanceof Error ? e.message : "Impossible de charger les données.");
+    } finally {
+      setChargement(false);
+    }
   }, []);
 
   const rafraichirFiche = useCallback(async (id: string) => {
-    setFiche(await repository.chargerFiche(id));
+    try {
+      setFiche(await repository.chargerFiche(id));
+      setErreur(null);
+    } catch (e) {
+      setErreur(e instanceof Error ? e.message : "Impossible de charger ce dossier.");
+    }
   }, []);
 
   useEffect(() => {
@@ -139,6 +153,16 @@ export default function App() {
       </header>
 
       <main className="page">
+        {erreur && (
+          <div className="erreur" role="alert">
+            <strong>Les données n&apos;ont pas pu être chargées.</strong>
+            <div>{erreur}</div>
+            <button className="link-btn" onClick={() => rafraichirListe()}>
+              Réessayer
+            </button>
+          </div>
+        )}
+
         {chargement && <p className="empty">Chargement…</p>}
 
         {!chargement && !session && (

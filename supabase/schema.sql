@@ -82,7 +82,9 @@ create table etape_patient (
 -- d'ajouter une colonne par question.
 create table reponse_formulaire (
   id         uuid primary key default gen_random_uuid(),
-  patient_id uuid not null references patient(id) on delete cascade,
+  -- Un seul questionnaire par patient : l'unicite permet a l'application
+  -- de faire un upsert plutot que de gerer creation et mise a jour.
+  patient_id uuid not null unique references patient(id) on delete cascade,
   contenu    jsonb not null,
   soumis_le  timestamptz not null default now()
 );

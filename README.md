@@ -11,7 +11,9 @@ débloquer aujourd'hui, le patient demande où il en est.
 
 ```bash
 npm install
-npm run dev
+npm run dev     # http://localhost:5174
+npm test        # 12 tests sur les règles de détection
+npm run build   # production dans dist/
 ```
 
 L'application démarre sur http://localhost:5174 avec un jeu de démonstration en mémoire.
@@ -21,9 +23,12 @@ choisissez un praticien, le coordinateur Nadia Kessler, ou un patient.
 Pour la brancher sur une vraie base :
 
 1. Créer un projet Supabase.
-2. Coller `supabase/schema.sql` dans l'éditeur SQL.
+2. Coller `supabase/schema.sql` dans l'éditeur SQL, puis `supabase/seed.sql`.
 3. Copier `.env.example` vers `.env` et renseigner les deux variables.
 4. Relancer `npm run dev`.
+
+Le jeu de démonstration SQL reproduit exactement l'état du jeu en mémoire, avec des dates
+relatives à l'exécution pour que la démonstration ne vieillisse pas.
 
 L'en-tête indique en permanence la source utilisée, `données de démonstration` ou `Supabase`.
 
@@ -81,6 +86,7 @@ src/
     index.ts            choisit l'une ou l'autre selon l'environnement
     seed.ts             jeu de démonstration
     alertes.ts          règles de détection des points bloquants (fonction pure)
+    alertes.test.ts     12 tests sur ces règles
   pages/
     Connexion.tsx          choix du profil
     ListePraticien.tsx     liste + filtres
@@ -184,6 +190,11 @@ Trois jours imposent des choix. Ce qui manque, et pourquoi.
 - **Le routage.** Deux vues et un détail se pilotent très bien avec un état local ; un
   routeur serait la première chose à ajouter dès qu'on veut partager une URL de fiche.
 
+En revanche, les règles de détection des points bloquants sont testées : douze tests
+couvrent chaque règle et son cas négatif, parce que c'est la seule logique du projet dont
+une erreur passerait inaperçue. Un chargement qui échoue affiche un message et un bouton
+Réessayer plutôt qu'une page blanche.
+
 Sur un vrai produit de santé, il faudrait aussi traiter l'hébergement de données de santé,
 la traçabilité des accès et la durée de conservation. Ce sont des contraintes
 réglementaires, pas des fonctionnalités, et elles orientent l'architecture dès le départ.
@@ -196,8 +207,8 @@ réglementaires, pas des fonctionnalités, et elles orientent l'architecture dè
 2. Une URL par fiche patient, pour pouvoir en partager une en réunion.
 3. Le rattachement d'un document à une étape, le partage documentaire étant au cœur de
    la coordination.
-4. Des tests sur `calculerAlertes`, qui est la seule logique métier non triviale du
-   projet et la première chose que je protégerais.
+4. Des tests sur les repositories, en particulier le calcul d'avancement, aujourd'hui
+   dupliqué entre les deux implémentations.
 
 Le troisième point est celui qui ferait gagner le plus de temps au quotidien : tant que les
 comptes rendus circulent par mail, la coordination reste incomplète.

@@ -1,0 +1,10 @@
+[build]
+  command = "npm run build"
+  publish = "dist"
+
+# L'application est une page unique : toutes les routes doivent servir
+# index.html, sinon un rafraichissement renverrait un 404.
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

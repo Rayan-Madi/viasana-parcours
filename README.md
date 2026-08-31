@@ -23,12 +23,20 @@ choisissez un praticien, le coordinateur Nadia Kessler, ou un patient.
 Pour la brancher sur une vraie base :
 
 1. Créer un projet Supabase.
-2. Coller `supabase/schema.sql` dans l'éditeur SQL, puis `supabase/seed.sql`.
+2. Coller dans l'éditeur SQL, dans cet ordre : `supabase/schema.sql`,
+   `supabase/seed.sql`, puis `supabase/policies.sql`.
 3. Copier `.env.example` vers `.env` et renseigner les deux variables.
 4. Relancer `npm run dev`.
 
 Le jeu de démonstration SQL reproduit exactement l'état du jeu en mémoire, avec des dates
 relatives à l'exécution pour que la démonstration ne vieillisse pas.
+
+Le troisième fichier est important : Supabase active Row Level Security par défaut, donc
+sans politiques les tables répondent 200 avec un tableau vide. J'ai préféré écrire des
+politiques ouvertes et assumées plutôt que de désactiver RLS : une base sans RLS est ouverte
+sans que rien ne le signale, une politique explicite se lit dans le dépôt et se remplace le
+jour où l'authentification arrive. `policies.sql` contient en commentaire les vraies
+politiques, celles qui restreindraient chaque lecture à l'utilisateur authentifié.
 
 L'en-tête indique en permanence la source utilisée, `données de démonstration` ou `Supabase`.
 
@@ -189,6 +197,12 @@ Trois jours imposent des choix. Ce qui manque, et pourquoi.
 - **La génération du plan d'action en PDF.**
 - **Le routage.** Deux vues et un détail se pilotent très bien avec un état local ; un
   routeur serait la première chose à ajouter dès qu'on veut partager une URL de fiche.
+- **Le nombre de requêtes.** L'implémentation Supabase charge chaque table séparément puis
+  fait les jointures en JavaScript, ce qui donne une trentaine d'appels à l'ouverture là où
+  deux suffiraient. C'est un choix de simplicité qui tient à cette échelle et qui ne tiendrait
+  pas à mille patients. La correction est connue : demander les ressources imbriquées à
+  PostgREST en une seule fois, par exemple
+  `select=*,etape_patient(*,etape_modele(*))`, ou exposer une vue côté base.
 
 En revanche, les règles de détection des points bloquants sont testées : douze tests
 couvrent chaque règle et son cas négatif, parce que c'est la seule logique du projet dont

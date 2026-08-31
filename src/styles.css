@@ -313,3 +313,38 @@ dl.facts dd { margin: 0; }
 
 .perimetre { display: flex; gap: 8px; align-items: center; margin-bottom: 14px; flex-wrap: wrap; }
 .hint-perimetre { font-size: 12.5px; color: var(--ink-faint); }
+
+/* ------------------------------------------------------------- mobile */
+@media (max-width: 640px) {
+  .topbar {
+    height: auto;
+    min-height: 56px;
+    padding: 10px 16px;
+    flex-wrap: wrap;
+    gap: 10px;
+  }
+  /* Sur petit écran, le sous-titre et l'indicateur de source coûtent plus de
+     place qu'ils n'apportent d'information. */
+  .brand span, .source-tag { display: none; }
+  .roles { gap: 8px; }
+  .identite-role { display: none; }
+
+  .page { padding: 20px 16px 48px; }
+  h1 { font-size: 20px; }
+
+  .filters { gap: 8px; }
+  .filters input, .filters select { width: 100%; min-width: 0; }
+  .count { margin-left: 0; }
+
+  .coordination { flex-direction: column; align-items: stretch; gap: 10px; }
+  .coordination select, .coordination input { width: 100%; }
+
+  .choix { grid-template-columns: 1fr; }
+  .stats { gap: 8px; }
+  .stat { flex: 1; min-width: 0; padding: 10px 12px; }
+  .stat strong { font-size: 20px; }
+
+  .alerte-head { align-items: flex-start; }
+  .note-form .row { flex-direction: column; align-items: stretch; }
+  .note-form select, .note-form .primary { width: 100%; }
+}

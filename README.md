@@ -90,6 +90,12 @@ src/
   components/ui.tsx     badges, progression, formats de date
 ```
 
+L'application est utilisable sur téléphone. Ce n'est pas un détail cosmétique : un patient
+qui veut savoir quand est sa prochaine séance le fait depuis son téléphone, pas depuis un
+poste de travail. Sur petit écran, le sous-titre et l'indicateur de source disparaissent,
+les filtres passent en pleine largeur et les tableaux défilent horizontalement dans leur
+propre conteneur.
+
 Les écrans ne connaissent que l'interface `Repository`. Changer de source de données
 revient à changer une ligne dans `data/index.ts`, et la vue patient réutilise le même
 composant que la vue praticien avec `lectureSeule`, ce qui garantit que les deux

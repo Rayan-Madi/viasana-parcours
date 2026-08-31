@@ -1,8 +1,9 @@
 import { createClient, type SupabaseClient } from "@supabase/supabase-js";
 import type {
-  EtapeModele, EtapePatient, FichePatient, LignePatient, NoteSuivi,
+  Alerte, EtapeModele, EtapePatient, FichePatient, LignePatient, NoteSuivi,
   ParcoursModele, ParcoursPatient, Patient, Praticien, ReponseFormulaire, StatutEtape,
 } from "../types";
+import { calculerAlertes } from "./alertes";
 import type { Repository } from "./repository";
 
 /**
@@ -63,6 +64,22 @@ export class SupabaseRepository implements Repository {
         prochaineSeance: aVenir[0] ?? null,
         formulaireRecu: formulaires.some((f) => f.patient_id === patient.id),
       };
+    });
+  }
+
+  async listerAlertes(): Promise<Alerte[]> {
+    const [parcours, patients, modeles, etapes, etapesModele, formulaires, notes] =
+      await Promise.all([
+        this.table<ParcoursPatient>("parcours_patient"),
+        this.table<Patient>("patient"),
+        this.table<ParcoursModele>("parcours_modele"),
+        this.table<EtapePatient>("etape_patient"),
+        this.table<EtapeModele>("etape_modele"),
+        this.table<ReponseFormulaire>("reponse_formulaire"),
+        this.table<NoteSuivi>("note_suivi"),
+      ]);
+    return calculerAlertes({
+      parcours, patients, modeles, etapes, etapesModele, formulaires, notes,
     });
   }
 

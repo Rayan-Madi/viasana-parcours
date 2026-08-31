@@ -261,3 +261,32 @@ dl.facts dd { margin: 0; }
 }
 .coordination select { min-width: 210px; }
 .coordination .hint { font-size: 12px; color: var(--ink-faint); align-self: center; }
+
+/* ------------------------------------------------------- coordination */
+.stats { display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: wrap; }
+.stat {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 12px 18px;
+  min-width: 120px;
+}
+.stat strong { display: block; font-size: 24px; letter-spacing: -0.02em; }
+.stat span { font-size: 12px; color: var(--ink-faint); text-transform: uppercase; letter-spacing: 0.04em; }
+
+.card.alerte { border-left: 3px solid var(--border-strong); }
+.card.alerte.bloquant { border-left-color: #b4231e; }
+
+.alerte-head { display: flex; align-items: center; justify-content: space-between; gap: 16px; flex-wrap: wrap; }
+.alerte-nom { font-weight: 600; margin-right: 10px; }
+.alerte-parcours { color: var(--ink-faint); font-size: 13px; }
+.alerte-actions { display: flex; align-items: center; gap: 14px; }
+
+.alerte-liste { list-style: none; margin: 14px 0 0; padding: 0; display: grid; gap: 10px; }
+.alerte-liste li { display: grid; grid-template-columns: 8px 1fr; gap: 12px; align-items: start; }
+.puce { width: 8px; height: 8px; border-radius: 50%; margin-top: 6px; display: block; }
+.puce.haute { background: #b4231e; }
+.puce.moyenne { background: #b4690e; }
+.alerte-libelle { font-size: 14px; font-weight: 500; }
+.alerte-detail { font-size: 13px; color: var(--ink-soft); }

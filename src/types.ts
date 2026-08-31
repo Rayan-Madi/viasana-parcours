@@ -101,3 +101,21 @@ export interface FichePatient {
   formulaire: ReponseFormulaire | null;
   notes: Array<NoteSuivi & { praticienNom: string | null }>;
 }
+
+export type TypeAlerte =
+  | "formulaire_manquant"
+  | "etape_sans_date"
+  | "etape_sans_praticien"
+  | "parcours_dormant"
+  | "parcours_en_pause";
+
+/** Un point qui demande une action du coordinateur. */
+export interface Alerte {
+  parcoursPatientId: string;
+  patientNom: string;
+  parcoursNom: string;
+  type: TypeAlerte;
+  libelle: string;
+  detail: string;
+  gravite: "haute" | "moyenne";
+}

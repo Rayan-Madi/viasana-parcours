@@ -1,5 +1,5 @@
 import type {
-  FichePatient, LignePatient, ParcoursModele, Praticien, StatutEtape,
+  Alerte, FichePatient, LignePatient, ParcoursModele, Praticien, StatutEtape,
 } from "../types";
 
 /**
@@ -20,6 +20,9 @@ export interface Repository {
 
   /** Fiche complète d'un parcours patient. */
   chargerFiche(parcoursPatientId: string): Promise<FichePatient | null>;
+
+  /** Points bloquants, pour le coordinateur. */
+  listerAlertes(): Promise<Alerte[]>;
 
   changerStatutEtape(etapePatientId: string, statut: StatutEtape): Promise<void>;
   planifierEtape(etapePatientId: string, datePrevue: string | null): Promise<void>;

@@ -1,7 +1,8 @@
 import type {
-  EtapePatient, FichePatient, LignePatient, NoteSuivi, ParcoursModele,
+  Alerte, EtapePatient, FichePatient, LignePatient, NoteSuivi, ParcoursModele,
   Praticien, ReponseFormulaire, StatutEtape,
 } from "../types";
+import { calculerAlertes } from "./alertes";
 import type { Repository } from "./repository";
 import * as seed from "./seed";
 
@@ -47,6 +48,18 @@ export class MockRepository implements Repository {
         prochaineSeance: aVenir[0] ?? null,
         formulaireRecu: this.formulaires.some((f) => f.patient_id === patient.id),
       };
+    });
+  }
+
+  async listerAlertes(): Promise<Alerte[]> {
+    return calculerAlertes({
+      parcours: seed.parcoursPatients,
+      patients: seed.patients,
+      modeles: seed.parcoursModeles,
+      etapes: this.etapes,
+      etapesModele: seed.etapesModele,
+      formulaires: this.formulaires,
+      notes: this.notes,
     });
   }
 

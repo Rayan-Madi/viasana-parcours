@@ -1,18 +1,33 @@
 import { useCallback, useEffect, useState } from "react";
 import { repository } from "./data";
-import type { FichePatient, LignePatient, ParcoursModele, Praticien, StatutEtape } from "./types";
+import type {
+  Alerte, FichePatient, LignePatient, ParcoursModele, Praticien, StatutEtape,
+} from "./types";
 import { ListePraticien } from "./pages/ListePraticien";
 import { FicheParcours } from "./pages/FicheParcours";
 import { EspacePatient } from "./pages/EspacePatient";
+import { TableauCoordination } from "./pages/TableauCoordination";
 
-type Role = "praticien" | "patient";
+/**
+ * Trois rôles, trois questions différentes.
+ * Le praticien demande où en est son patient, le coordinateur demande qui
+ * débloquer aujourd'hui, le patient demande où il en est.
+ */
+type Role = "praticien" | "coordinateur" | "patient";
 type Vue = "liste" | "fiche";
+
+const ROLES: Array<{ cle: Role; libelle: string }> = [
+  { cle: "praticien", libelle: "Praticien" },
+  { cle: "coordinateur", libelle: "Coordinateur" },
+  { cle: "patient", libelle: "Patient" },
+];
 
 export default function App() {
   const [role, setRole] = useState<Role>("praticien");
   const [vue, setVue] = useState<Vue>("liste");
 
   const [lignes, setLignes] = useState<LignePatient[]>([]);
+  const [alertes, setAlertes] = useState<Alerte[]>([]);
   const [modeles, setModeles] = useState<ParcoursModele[]>([]);
   const [praticiens, setPraticiens] = useState<Praticien[]>([]);
   const [selection, setSelection] = useState<string | null>(null);
@@ -20,12 +35,14 @@ export default function App() {
   const [chargement, setChargement] = useState(true);
 
   const rafraichirListe = useCallback(async () => {
-    const [l, m, p] = await Promise.all([
+    const [l, a, m, p] = await Promise.all([
       repository.listerPatients(),
+      repository.listerAlertes(),
       repository.listerParcoursModeles(),
       repository.listerPraticiens(),
     ]);
     setLignes(l);
+    setAlertes(a);
     setModeles(m);
     setPraticiens(p);
     setChargement(false);
@@ -51,21 +68,24 @@ export default function App() {
     setVue("fiche");
   };
 
-  const changerStatut = async (etapeId: string, statut: StatutEtape) => {
-    await repository.changerStatutEtape(etapeId, statut);
+  const rafraichirTout = async () => {
     if (selection) await rafraichirFiche(selection);
     await rafraichirListe();
+  };
+
+  const changerStatut = async (etapeId: string, statut: StatutEtape) => {
+    await repository.changerStatutEtape(etapeId, statut);
+    await rafraichirTout();
   };
 
   const assignerPraticien = async (etapeId: string, praticienId: string | null) => {
     await repository.assignerPraticien(etapeId, praticienId);
-    if (selection) await rafraichirFiche(selection);
+    await rafraichirTout();
   };
 
   const planifier = async (etapeId: string, datePrevue: string | null) => {
     await repository.planifierEtape(etapeId, datePrevue);
-    if (selection) await rafraichirFiche(selection);
-    await rafraichirListe();
+    await rafraichirTout();
   };
 
   const ajouterNote = async (contenu: string, praticienId: string | null) => {
@@ -76,14 +96,15 @@ export default function App() {
       praticienId,
       contenu,
     });
-    await rafraichirFiche(selection);
+    await rafraichirTout();
   };
 
   const envoyerFormulaire = async (patientId: string, contenu: Record<string, string>) => {
     await repository.enregistrerFormulaire(patientId, contenu);
-    if (selection) await rafraichirFiche(selection);
-    await rafraichirListe();
+    await rafraichirTout();
   };
+
+  const estCoordinateur = role === "coordinateur";
 
   return (
     <>
@@ -95,19 +116,19 @@ export default function App() {
           <span className="source-tag">
             {repository.source === "demo" ? "données de démonstration" : "Supabase"}
           </span>
-          <button
-            className="role-btn"
-            aria-pressed={role === "praticien"}
-            onClick={() => {
-              setRole("praticien");
-              setVue("liste");
-            }}
-          >
-            Praticien
-          </button>
-          <button className="role-btn" aria-pressed={role === "patient"} onClick={() => setRole("patient")}>
-            Patient
-          </button>
+          {ROLES.map((r) => (
+            <button
+              key={r.cle}
+              className="role-btn"
+              aria-pressed={role === r.cle}
+              onClick={() => {
+                setRole(r.cle);
+                setVue("liste");
+              }}
+            >
+              {r.libelle}
+            </button>
+          ))}
         </div>
       </header>
 
@@ -118,15 +139,21 @@ export default function App() {
           <ListePraticien lignes={lignes} modeles={modeles} onOuvrir={ouvrirFiche} />
         )}
 
-        {!chargement && role === "praticien" && vue === "fiche" && fiche && (
+        {!chargement && estCoordinateur && vue === "liste" && (
+          <TableauCoordination alertes={alertes} lignes={lignes} onOuvrir={ouvrirFiche} />
+        )}
+
+        {!chargement && role !== "patient" && vue === "fiche" && fiche && (
           <FicheParcours
             fiche={fiche}
             praticiens={praticiens}
             onRetour={() => setVue("liste")}
             onChangerStatut={changerStatut}
             onAjouterNote={ajouterNote}
-            onAssignerPraticien={assignerPraticien}
-            onPlanifier={planifier}
+            // L'assignation et la planification sont réservées au coordinateur :
+            // c'est son métier, et le praticien n'a pas la vision d'ensemble.
+            onAssignerPraticien={estCoordinateur ? assignerPraticien : undefined}
+            onPlanifier={estCoordinateur ? planifier : undefined}
           />
         )}
 

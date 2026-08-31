@@ -1,8 +1,9 @@
 # Via Sana — suivi des parcours de soins coordonnés
 
 Prototype d'un outil de suivi des parcours de soins, construit autour du parcours
-**Prépa Marathon**. Deux interfaces : une vue praticien pour piloter plusieurs patients,
-une vue patient pour comprendre où il en est.
+**Prépa Marathon**. Trois vues, parce que trois personnes se posent trois questions
+différentes : le praticien demande où en est son patient, le coordinateur demande qui
+débloquer aujourd'hui, le patient demande où il en est.
 
 ---
 
@@ -78,10 +79,12 @@ src/
     supabaseRepository.ts  implémentation Supabase
     index.ts            choisit l'une ou l'autre selon l'environnement
     seed.ts             jeu de démonstration
+    alertes.ts          règles de détection des points bloquants (fonction pure)
   pages/
-    ListePraticien.tsx  liste + filtres
-    FicheParcours.tsx   fiche détaillée, réutilisée en lecture seule côté patient
-    EspacePatient.tsx   espace patient + questionnaire
+    ListePraticien.tsx     liste + filtres
+    TableauCoordination.tsx  points à traiter, vue coordinateur
+    FicheParcours.tsx      fiche détaillée, réutilisée en lecture seule côté patient
+    EspacePatient.tsx      espace patient + questionnaire
   components/ui.tsx     badges, progression, formats de date
 ```
 
@@ -111,11 +114,28 @@ affichent exactement le même parcours.
 - parcours en lecture seule, avec ce qui est fait, en cours et à venir
 - prochaines séances et notes de suivi
 
-L'assignation mérite un mot. Leur offre décrit un coordinateur qui « gère les rendez-vous et
-s'assure que les praticiens partagent les documents ». Assigner un praticien à une étape est
+**Interface coordinateur**
+
+- « Points à traiter » : les parcours qui n'avancent pas, classés par urgence
+- cinq règles de détection : questionnaire jamais transmis, étape en cours sans date,
+  étape en cours sans praticien alors qu'une spécialité est attendue, parcours sans
+  aucune activité depuis trois semaines, parcours en pause
+- assignation d'un praticien et planification d'une date, réservées à ce rôle
+- les parcours sains sont listés à part, pour qu'ils ne créent pas de bruit
+
+Le rôle vient de leur offre, qui décrit « un coordinateur qui gère les rendez-vous et
+s'assure que les praticiens partagent les documents ». Assigner quelqu'un à une étape est
 donc un acte quotidien du métier, pas un réglage technique : s'il fallait un accès à la base
-ou un développeur pour le faire, l'outil raterait ce qu'il est censé résoudre. C'est pour
-cette raison qu'il se fait depuis la fiche, en deux clics.
+ou un développeur pour le faire, l'outil raterait ce qu'il doit résoudre.
+
+Le praticien, lui, peut changer le statut d'une étape et écrire une note, mais pas
+réassigner : il n'a pas la vision d'ensemble. C'est une règle simple, volontairement, pour
+montrer qu'on a pensé aux permissions sans construire un système de droits complet.
+
+Les règles de détection vivent dans `data/alertes.ts`, sous la forme d'une fonction pure
+partagée par les deux implémentations du repository. Elles ne dépendent d'aucune source de
+données, donc elles se testent isolément et ne peuvent pas diverger entre la démonstration
+et Supabase.
 
 Transmettre le questionnaire clôture automatiquement la première étape et fait passer la
 suivante en cours. C'est le seul automatisme du prototype, et il correspond à ce que
@@ -149,8 +169,8 @@ réglementaires, pas des fonctionnalités, et elles orientent l'architecture dè
 2. Une URL par fiche patient, pour pouvoir en partager une en réunion.
 3. Le rattachement d'un document à une étape, le partage documentaire étant au cœur de
    la coordination.
-4. Une vue coordinateur listant ce qui bloque : formulaires non reçus, étapes sans date,
-   parcours sans activité depuis trois semaines.
+4. Des tests sur `calculerAlertes`, qui est la seule logique métier non triviale du
+   projet et la première chose que je protégerais.
 
-Le quatrième point est celui qui ferait gagner le plus de temps au quotidien, parce qu'il
-transforme l'outil de consultation en outil de pilotage.
+Le troisième point est celui qui ferait gagner le plus de temps au quotidien : tant que les
+comptes rendus circulent par mail, la coordination reste incomplète.

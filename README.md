@@ -128,6 +128,8 @@ des politiques de sécurité au niveau des lignes.
 
 **Interface coordinateur**
 
+- deux onglets : « Points à traiter » et « Tous les patients », parce qu'un coordinateur
+  a besoin de piloter les blocages sans perdre l'accès à l'ensemble des dossiers
 - « Points à traiter » : les parcours qui n'avancent pas, classés par urgence
 - cinq règles de détection : questionnaire jamais transmis, étape en cours sans date,
   étape en cours sans praticien alors qu'une spécialité est attendue, parcours sans

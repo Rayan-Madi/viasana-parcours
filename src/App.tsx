@@ -10,10 +10,12 @@ import { EspacePatient } from "./pages/EspacePatient";
 import { TableauCoordination } from "./pages/TableauCoordination";
 
 type Vue = "liste" | "fiche";
+type OngletCoordination = "alertes" | "patients";
 
 export default function App() {
   const [session, setSession] = useState<Session | null>(null);
   const [vue, setVue] = useState<Vue>("liste");
+  const [onglet, setOnglet] = useState<OngletCoordination>("alertes");
 
   const [lignes, setLignes] = useState<LignePatient[]>([]);
   const [alertes, setAlertes] = useState<Alerte[]>([]);
@@ -153,7 +155,30 @@ export default function App() {
         )}
 
         {!chargement && coordinateur && vue === "liste" && (
-          <TableauCoordination alertes={alertes} lignes={lignes} onOuvrir={ouvrirFiche} />
+          <>
+            <div className="perimetre">
+              <button
+                className="role-btn"
+                aria-pressed={onglet === "alertes"}
+                onClick={() => setOnglet("alertes")}
+              >
+                Points à traiter ({alertes.length})
+              </button>
+              <button
+                className="role-btn"
+                aria-pressed={onglet === "patients"}
+                onClick={() => setOnglet("patients")}
+              >
+                Tous les patients ({lignes.length})
+              </button>
+            </div>
+
+            {onglet === "alertes" ? (
+              <TableauCoordination alertes={alertes} lignes={lignes} onOuvrir={ouvrirFiche} />
+            ) : (
+              <ListePraticien lignes={lignes} modeles={modeles} onOuvrir={ouvrirFiche} />
+            )}
+          </>
         )}
 
         {!chargement && session?.type === "praticien" && vue === "fiche" && fiche && (

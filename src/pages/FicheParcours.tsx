@@ -11,7 +11,11 @@ interface Props {
   lectureSeule?: boolean;
   onRetour?: () => void;
   onChangerStatut: (etapePatientId: string, statut: StatutEtape) => void;
-  onAjouterNote: (contenu: string, praticienId: string | null) => void;
+  onAjouterNote: (
+    contenu: string,
+    praticienId: string | null,
+    etapePatientId: string | null,
+  ) => void;
   onAssignerPraticien?: (etapePatientId: string, praticienId: string | null) => void;
   onPlanifier?: (etapePatientId: string, datePrevue: string | null) => void;
 }
@@ -22,6 +26,9 @@ export function FicheParcours({
 }: Props) {
   const [note, setNote] = useState("");
   const [auteur, setAuteur] = useState(praticiens[0]?.id ?? "");
+  // Une note peut concerner une étape précise ou le parcours dans son ensemble,
+  // par exemple une séance réalisée hors parcours.
+  const [rattachement, setRattachement] = useState("");
 
   const realisees = fiche.etapes.filter((e) => e.instance.statut === "realisee").length;
   const prochaines = fiche.etapes
@@ -31,9 +38,15 @@ export function FicheParcours({
   const soumettreNote = () => {
     const contenu = note.trim();
     if (!contenu) return;
-    onAjouterNote(contenu, auteur || null);
+    onAjouterNote(contenu, auteur || null, rattachement || null);
     setNote("");
   };
+
+  /** Libellé de l'étape à laquelle une note est rattachée, s'il y en a une. */
+  const etapeDeLaNote = (etapePatientId: string | null) =>
+    etapePatientId
+      ? (fiche.etapes.find((e) => e.instance.id === etapePatientId)?.modele.libelle ?? null)
+      : null;
 
   return (
     <>
@@ -171,6 +184,18 @@ export function FicheParcours({
                       </option>
                     ))}
                   </select>
+                  <select
+                    value={rattachement}
+                    onChange={(e) => setRattachement(e.target.value)}
+                    aria-label="Rattacher la note"
+                  >
+                    <option value="">Sur le parcours entier</option>
+                    {fiche.etapes.map(({ instance, modele }) => (
+                      <option key={instance.id} value={instance.id}>
+                        Étape {modele.ordre} : {modele.libelle}
+                      </option>
+                    ))}
+                  </select>
                   <button className="primary" onClick={soumettreNote} disabled={!note.trim()}>
                     Ajouter la note
                   </button>
@@ -184,6 +209,9 @@ export function FicheParcours({
                 <div className="note" key={n.id}>
                   <div className="note-head">
                     {n.praticienNom ?? "Équipe Via Sana"} &middot; {dateCourte(n.cree_le)}
+                    {etapeDeLaNote(n.etape_patient_id) && (
+                      <span className="note-etape">{etapeDeLaNote(n.etape_patient_id)}</span>
+                    )}
                   </div>
                   <div className="note-body">{n.contenu}</div>
                 </div>

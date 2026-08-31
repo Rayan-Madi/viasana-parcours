@@ -104,11 +104,15 @@ export default function App() {
     await rafraichirTout();
   };
 
-  const ajouterNote = async (contenu: string, praticienId: string | null) => {
+  const ajouterNote = async (
+    contenu: string,
+    praticienId: string | null,
+    etapePatientId: string | null,
+  ) => {
     if (!selection) return;
     await repository.ajouterNote({
       parcoursPatientId: selection,
-      etapePatientId: null,
+      etapePatientId,
       praticienId,
       contenu,
     });

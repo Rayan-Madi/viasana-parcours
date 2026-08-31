@@ -196,3 +196,22 @@ insert into note_suivi (parcours_patient_id, praticien_id, contenu, cree_le) val
   ('c0000000-0000-4000-8000-000000000006', 'a0000000-0000-4000-8000-000000000005',
    'Patient injoignable depuis trois semaines. Parcours mis en pause, relance prévue début du mois prochain.',
    now() - interval '21 days');
+
+-- Rattache les notes qui concernent une etape precise, pour refleter le
+-- jeu en memoire : une observation de bilan appartient au bilan, pas au
+-- parcours entier.
+update note_suivi n set etape_patient_id = ep.id
+from etape_patient ep
+join etape_modele m on m.id = ep.etape_modele_id
+where ep.parcours_patient_id = n.parcours_patient_id
+  and n.parcours_patient_id = 'c0000000-0000-4000-8000-000000000001'
+  and m.ordre = 2
+  and n.contenu like 'Bilan réalisé%';
+
+update note_suivi n set etape_patient_id = ep.id
+from etape_patient ep
+join etape_modele m on m.id = ep.etape_modele_id
+where ep.parcours_patient_id = n.parcours_patient_id
+  and n.parcours_patient_id = 'c0000000-0000-4000-8000-000000000003'
+  and m.ordre = 4
+  and n.contenu like 'Analyse de foulée%';

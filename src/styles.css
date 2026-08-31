@@ -363,3 +363,12 @@ dl.facts dd { margin: 0; }
   font-size: 14px;
 }
 .erreur .link-btn { border-color: #d9a6a2; color: #8c1c17; background: transparent; }
+
+.note-etape {
+  margin-left: 8px;
+  font-size: 12px;
+  background: var(--todo-bg);
+  color: var(--ink-soft);
+  border-radius: 999px;
+  padding: 2px 8px;
+}

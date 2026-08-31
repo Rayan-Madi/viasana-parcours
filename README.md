@@ -180,6 +180,40 @@ Transmettre le questionnaire clôture automatiquement la première étape et fai
 suivante en cours. C'est le seul automatisme du prototype, et il correspond à ce que
 décrit le parcours réel : le questionnaire est lu par le kiné avant le bilan.
 
+
+---
+
+## Démonstration guidée
+
+Cinq minutes, dans cet ordre, pour voir l'essentiel.
+
+**1. Se connecter en coordinateur, Nadia Kessler.**
+On arrive sur « Points à traiter » : quatre blocages, deux points de vigilance, trois
+parcours sains. Karim Dubois cumule quatre alertes, il est le cas d'école. Les parcours qui
+vont bien sont relégués plus bas pour ne pas faire de bruit.
+
+**2. Ouvrir la fiche de Karim.**
+Sous chaque étape, le coordinateur peut assigner un praticien et poser une date. Assigner
+Camille Renaud au bilan clinique et choisir une date, puis revenir au tableau : deux
+alertes ont disparu. C'est la boucle complète de l'outil.
+
+**3. Basculer sur le filtre « Tous les parcours ».**
+La liste contient « Retour à la course après blessure », un second parcours ajouté sans
+toucher au schéma ni au code. C'est la démonstration du choix de modélisation.
+
+**4. Changer de profil, se connecter en Camille Renaud.**
+Elle voit « Mes patients (5) » et non les six : Karim n'a aucun praticien assigné. Elle peut
+changer un statut et écrire une note, rattachée au parcours ou à une étape précise, mais
+elle n'a pas les champs d'assignation.
+
+**5. Changer de profil, se connecter en Karim Dubois.**
+Il tombe sur son questionnaire, jamais transmis. Le remplir clôture l'étape 1 et fait passer
+l'étape 2 en cours. Retourner ensuite en coordinateur : son alerte « questionnaire jamais
+transmis » a disparu.
+
+**6. Réduire la fenêtre à la largeur d'un téléphone.**
+L'espace patient reste lisible, ce qui est le cas d'usage le plus probable.
+
 ---
 
 ## Ce que j'ai volontairement laissé de côté
@@ -197,6 +231,11 @@ Trois jours imposent des choix. Ce qui manque, et pourquoi.
 - **La génération du plan d'action en PDF.**
 - **Le routage.** Deux vues et un détail se pilotent très bien avec un état local ; un
   routeur serait la première chose à ajouter dès qu'on veut partager une URL de fiche.
+- **Le poids du client Supabase.** `@supabase/supabase-js` embarque l'authentification, le
+  temps réel, le stockage et les fonctions, alors que l'application n'utilise que l'accès
+  aux données. Cela représente l'essentiel des 111 ko compressés du bundle. Deux corrections
+  possibles : n'importer que `@supabase/postgrest-js`, ou charger l'implémentation Supabase
+  en import dynamique pour que le mode démonstration n'en paie pas le prix.
 - **Le nombre de requêtes.** L'implémentation Supabase charge chaque table séparément puis
   fait les jointures en JavaScript, ce qui donne une trentaine d'appels à l'ouverture là où
   deux suffiraient. C'est un choix de simplicité qui tient à cette échelle et qui ne tiendrait

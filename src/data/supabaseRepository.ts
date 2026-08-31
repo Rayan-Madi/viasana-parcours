@@ -31,14 +31,16 @@ export class SupabaseRepository implements Repository {
   }
 
   async listerPatients(): Promise<LignePatient[]> {
-    const [parcours, patients, modeles, etapes, etapesModele, formulaires] = await Promise.all([
-      this.table<ParcoursPatient>("parcours_patient"),
-      this.table<Patient>("patient"),
-      this.table<ParcoursModele>("parcours_modele"),
-      this.table<EtapePatient>("etape_patient"),
-      this.table<EtapeModele>("etape_modele"),
-      this.table<ReponseFormulaire>("reponse_formulaire"),
-    ]);
+    const [parcours, patients, modeles, etapes, etapesModele, formulaires, notes] =
+      await Promise.all([
+        this.table<ParcoursPatient>("parcours_patient"),
+        this.table<Patient>("patient"),
+        this.table<ParcoursModele>("parcours_modele"),
+        this.table<EtapePatient>("etape_patient"),
+        this.table<EtapeModele>("etape_modele"),
+        this.table<ReponseFormulaire>("reponse_formulaire"),
+        this.table<NoteSuivi>("note_suivi"),
+      ]);
 
     return parcours.map((p) => {
       const patient = patients.find((x) => x.id === p.patient_id)!;
@@ -47,6 +49,12 @@ export class SupabaseRepository implements Repository {
         .filter((e) => e.parcours_patient_id === p.id)
         .map((e) => ({ e, m: etapesModele.find((m) => m.id === e.etape_modele_id)! }))
         .sort((a, b) => a.m.ordre - b.m.ordre);
+
+      const impliques = new Set<string>();
+      lignes.forEach((l) => l.e.praticien_id && impliques.add(l.e.praticien_id));
+      notes
+        .filter((n) => n.parcours_patient_id === p.id && n.praticien_id)
+        .forEach((n) => impliques.add(n.praticien_id!));
 
       const courante = lignes.find((l) => l.e.statut === "en_cours");
       const aVenir = lignes
@@ -63,6 +71,7 @@ export class SupabaseRepository implements Repository {
         etapesTotal: lignes.length,
         prochaineSeance: aVenir[0] ?? null,
         formulaireRecu: formulaires.some((f) => f.patient_id === patient.id),
+        praticienIds: [...impliques],
       };
     });
   }

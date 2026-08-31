@@ -6,13 +6,20 @@ interface Props {
   lignes: LignePatient[];
   modeles: ParcoursModele[];
   onOuvrir: (parcoursPatientId: string) => void;
+  /** Praticien connecté : sert à distinguer sa file active du reste. */
+  praticienId?: string;
 }
 
-export function ListePraticien({ lignes, modeles, onOuvrir }: Props) {
+export function ListePraticien({ lignes, modeles, onOuvrir, praticienId }: Props) {
   const [recherche, setRecherche] = useState("");
   const [parcours, setParcours] = useState("tous");
   const [statut, setStatut] = useState("tous");
   const [etape, setEtape] = useState("toutes");
+  const [perimetre, setPerimetre] = useState<"mes" | "tous">("mes");
+
+  const miens = praticienId
+    ? lignes.filter((l) => l.praticienIds.includes(praticienId)).length
+    : 0;
 
   const etapesDisponibles = useMemo(() => {
     const set = new Set<string>();
@@ -23,6 +30,7 @@ export function ListePraticien({ lignes, modeles, onOuvrir }: Props) {
   const filtrees = useMemo(() => {
     const q = recherche.trim().toLowerCase();
     return lignes.filter((l) => {
+      if (praticienId && perimetre === "mes" && !l.praticienIds.includes(praticienId)) return false;
       if (parcours !== "tous" && l.parcours.parcours_modele_id !== parcours) return false;
       if (statut !== "tous" && l.parcours.statut !== statut) return false;
       if (etape !== "toutes" && l.etapeCourante !== etape) return false;
@@ -32,14 +40,38 @@ export function ListePraticien({ lignes, modeles, onOuvrir }: Props) {
       }
       return true;
     });
-  }, [lignes, recherche, parcours, statut, etape]);
+  }, [lignes, recherche, parcours, statut, etape, praticienId, perimetre]);
 
   return (
     <>
       <h1>Patients suivis</h1>
       <p className="subtitle">
-        Vue d&apos;ensemble des parcours en cours, quelle que soit la spécialité du praticien.
+        {praticienId && perimetre === "mes"
+          ? "Les parcours sur lesquels vous intervenez."
+          : "Tous les parcours suivis, quelle que soit la spécialité."}
       </p>
+
+      {praticienId && (
+        <div className="perimetre">
+          <button
+            className="role-btn"
+            aria-pressed={perimetre === "mes"}
+            onClick={() => setPerimetre("mes")}
+          >
+            Mes patients ({miens})
+          </button>
+          <button
+            className="role-btn"
+            aria-pressed={perimetre === "tous"}
+            onClick={() => setPerimetre("tous")}
+          >
+            Tous ({lignes.length})
+          </button>
+          <span className="hint-perimetre">
+            En soin coordonné, voir ce que font les autres fait partie du travail.
+          </span>
+        </div>
+      )}
 
       <div className="filters">
         <input

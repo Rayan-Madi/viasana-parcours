@@ -85,6 +85,8 @@ export interface LignePatient {
   etapesTotal: number;
   prochaineSeance: string | null;
   formulaireRecu: boolean;
+  /** Praticiens assignés à une étape ou auteurs d'une note sur ce parcours. */
+  praticienIds: string[];
 }
 
 /** Vue complete d'un parcours, cote praticien comme cote patient. */

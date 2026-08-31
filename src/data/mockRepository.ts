@@ -32,6 +32,12 @@ export class MockRepository implements Repository {
       const modele = seed.parcoursModeles.find((m) => m.id === parcours.parcours_modele_id)!;
       const etapes = this.etapesDuParcours(parcours.id);
 
+      const impliques = new Set<string>();
+      etapes.forEach((e) => e.instance.praticien_id && impliques.add(e.instance.praticien_id));
+      this.notes
+        .filter((n) => n.parcours_patient_id === parcours.id && n.praticien_id)
+        .forEach((n) => impliques.add(n.praticien_id!));
+
       const courante = etapes.find((e) => e.instance.statut === "en_cours");
       const aVenir = etapes
         .filter((e) => e.instance.date_prevue && e.instance.statut !== "realisee")
@@ -47,6 +53,7 @@ export class MockRepository implements Repository {
         etapesTotal: etapes.length,
         prochaineSeance: aVenir[0] ?? null,
         formulaireRecu: this.formulaires.some((f) => f.patient_id === patient.id),
+        praticienIds: [...impliques],
       };
     });
   }

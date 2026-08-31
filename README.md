@@ -15,7 +15,8 @@ npm run dev
 ```
 
 L'application démarre sur http://localhost:5174 avec un jeu de démonstration en mémoire.
-Aucun compte ni service externe n'est nécessaire.
+Aucun compte ni service externe n'est nécessaire. Le premier écran demande qui vous êtes :
+choisissez un praticien, le coordinateur Nadia Kessler, ou un patient.
 
 Pour la brancher sur une vraie base :
 
@@ -81,6 +82,7 @@ src/
     seed.ts             jeu de démonstration
     alertes.ts          règles de détection des points bloquants (fonction pure)
   pages/
+    Connexion.tsx          choix du profil
     ListePraticien.tsx     liste + filtres
     TableauCoordination.tsx  points à traiter, vue coordinateur
     FicheParcours.tsx      fiche détaillée, réutilisée en lecture seule côté patient
@@ -97,8 +99,17 @@ affichent exactement le même parcours.
 
 ## Ce que fait le prototype
 
+**Identification**
+
+Un écran d'entrée demande qui vous êtes, sans mot de passe. Ce n'est pas de
+l'authentification, c'est une identité de démonstration, et c'est assumé : ce qui compte
+est de montrer que chacun ne voit que ce qui le concerne. En production, Supabase Auth avec
+des politiques de sécurité au niveau des lignes.
+
 **Interface praticien**
 
+- par défaut, uniquement les parcours sur lesquels le praticien connecté intervient,
+  avec une bascule vers l'ensemble des patients
 - liste des patients avec parcours, étape courante, avancement, prochaine séance
 - filtres par parcours, par statut, par étape courante, plus une recherche
 - signalement visible des formulaires non reçus
@@ -110,6 +121,7 @@ affichent exactement le même parcours.
 
 **Interface patient**
 
+- accès limité à son seul dossier
 - questionnaire préalable à remplir ou à consulter
 - parcours en lecture seule, avec ce qui est fait, en cours et à venir
 - prochaines séances et notes de suivi
@@ -132,6 +144,11 @@ Le praticien, lui, peut changer le statut d'une étape et écrire une note, mais
 réassigner : il n'a pas la vision d'ensemble. C'est une règle simple, volontairement, pour
 montrer qu'on a pensé aux permissions sans construire un système de droits complet.
 
+Une précision sur la bascule « Mes patients / Tous » côté praticien. On aurait pu cloisonner
+strictement, mais dans un parcours coordonné, savoir ce que les collègues ont fait est
+précisément l'objet de l'outil. Le défaut affiche donc sa propre file, sans interdire de
+voir le reste.
+
 Les règles de détection vivent dans `data/alertes.ts`, sous la forme d'une fonction pure
 partagée par les deux implémentations du repository. Elles ne dépendent d'aucune source de
 données, donc elles se testent isolément et ne peuvent pas diverger entre la démonstration
@@ -147,8 +164,10 @@ décrit le parcours réel : le questionnaire est lu par le kiné avant le bilan.
 
 Trois jours imposent des choix. Ce qui manque, et pourquoi.
 
-- **L'authentification réelle.** Un sélecteur de rôle suffit à démontrer les deux vues.
-  En production, Supabase Auth avec des politiques de sécurité au niveau des lignes.
+- **L'authentification réelle.** L'écran d'entrée identifie sans vérifier : pas de mot de
+  passe, pas de session, pas de jeton. En production, Supabase Auth et des politiques de
+  sécurité au niveau des lignes, pour que le filtrage soit appliqué par la base et non par
+  l'interface.
 - **La prise de rendez-vous.** Les dates sont affichées et modifiables en base, mais il
   n'y a pas d'agenda. C'est un chantier à part entière, souvent connecté à l'existant
   des praticiens.
@@ -165,7 +184,7 @@ réglementaires, pas des fonctionnalités, et elles orientent l'architecture dè
 
 ## Ce que je ferais ensuite, dans cet ordre
 
-1. Authentification et cloisonnement des accès par rôle.
+1. La vraie authentification, avec le cloisonnement appliqué côté base.
 2. Une URL par fiche patient, pour pouvoir en partager une en réunion.
 3. Le rattachement d'un document à une étape, le partage documentaire étant au cœur de
    la coordination.

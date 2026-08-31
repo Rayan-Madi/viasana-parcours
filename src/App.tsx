@@ -3,27 +3,16 @@ import { repository } from "./data";
 import type {
   Alerte, FichePatient, LignePatient, ParcoursModele, Praticien, StatutEtape,
 } from "./types";
+import { Connexion, type Session } from "./pages/Connexion";
 import { ListePraticien } from "./pages/ListePraticien";
 import { FicheParcours } from "./pages/FicheParcours";
 import { EspacePatient } from "./pages/EspacePatient";
 import { TableauCoordination } from "./pages/TableauCoordination";
 
-/**
- * Trois rôles, trois questions différentes.
- * Le praticien demande où en est son patient, le coordinateur demande qui
- * débloquer aujourd'hui, le patient demande où il en est.
- */
-type Role = "praticien" | "coordinateur" | "patient";
 type Vue = "liste" | "fiche";
 
-const ROLES: Array<{ cle: Role; libelle: string }> = [
-  { cle: "praticien", libelle: "Praticien" },
-  { cle: "coordinateur", libelle: "Coordinateur" },
-  { cle: "patient", libelle: "Patient" },
-];
-
 export default function App() {
-  const [role, setRole] = useState<Role>("praticien");
+  const [session, setSession] = useState<Session | null>(null);
   const [vue, setVue] = useState<Vue>("liste");
 
   const [lignes, setLignes] = useState<LignePatient[]>([]);
@@ -46,7 +35,6 @@ export default function App() {
     setModeles(m);
     setPraticiens(p);
     setChargement(false);
-    return l;
   }, []);
 
   const rafraichirFiche = useCallback(async (id: string) => {
@@ -54,14 +42,26 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    rafraichirListe().then((l) => {
-      if (l.length > 0) setSelection((s) => s ?? l[0].parcours.id);
-    });
+    rafraichirListe();
   }, [rafraichirListe]);
 
   useEffect(() => {
     if (selection) rafraichirFiche(selection);
   }, [selection, rafraichirFiche]);
+
+  const connecter = (s: Session) => {
+    setSession(s);
+    setVue("liste");
+    // Un patient n'a qu'un dossier : on l'ouvre directement.
+    setSelection(s.type === "patient" ? s.parcoursId : null);
+  };
+
+  const deconnecter = () => {
+    setSession(null);
+    setSelection(null);
+    setFiche(null);
+    setVue("liste");
+  };
 
   const ouvrirFiche = (id: string) => {
     setSelection(id);
@@ -104,7 +104,7 @@ export default function App() {
     await rafraichirTout();
   };
 
-  const estCoordinateur = role === "coordinateur";
+  const coordinateur = session?.type === "praticien" && session.coordinateur;
 
   return (
     <>
@@ -116,54 +116,68 @@ export default function App() {
           <span className="source-tag">
             {repository.source === "demo" ? "données de démonstration" : "Supabase"}
           </span>
-          {ROLES.map((r) => (
-            <button
-              key={r.cle}
-              className="role-btn"
-              aria-pressed={role === r.cle}
-              onClick={() => {
-                setRole(r.cle);
-                setVue("liste");
-              }}
-            >
-              {r.libelle}
-            </button>
-          ))}
+          {session && (
+            <div className="identite">
+              <div>
+                <div className="identite-nom">{session.nom}</div>
+                <div className="identite-role">
+                  {session.type === "patient"
+                    ? "Espace patient"
+                    : coordinateur
+                      ? "Coordination"
+                      : "Praticien"}
+                </div>
+              </div>
+              <button className="role-btn" onClick={deconnecter}>
+                Changer de profil
+              </button>
+            </div>
+          )}
         </div>
       </header>
 
       <main className="page">
         {chargement && <p className="empty">Chargement…</p>}
 
-        {!chargement && role === "praticien" && vue === "liste" && (
-          <ListePraticien lignes={lignes} modeles={modeles} onOuvrir={ouvrirFiche} />
+        {!chargement && !session && (
+          <Connexion praticiens={praticiens} lignes={lignes} onConnexion={connecter} />
         )}
 
-        {!chargement && estCoordinateur && vue === "liste" && (
+        {!chargement && session?.type === "praticien" && vue === "liste" && !coordinateur && (
+          <ListePraticien
+            lignes={lignes}
+            modeles={modeles}
+            onOuvrir={ouvrirFiche}
+            praticienId={session.id}
+          />
+        )}
+
+        {!chargement && coordinateur && vue === "liste" && (
           <TableauCoordination alertes={alertes} lignes={lignes} onOuvrir={ouvrirFiche} />
         )}
 
-        {!chargement && role !== "patient" && vue === "fiche" && fiche && (
+        {!chargement && session?.type === "praticien" && vue === "fiche" && fiche && (
           <FicheParcours
             fiche={fiche}
             praticiens={praticiens}
             onRetour={() => setVue("liste")}
             onChangerStatut={changerStatut}
             onAjouterNote={ajouterNote}
-            // L'assignation et la planification sont réservées au coordinateur :
-            // c'est son métier, et le praticien n'a pas la vision d'ensemble.
-            onAssignerPraticien={estCoordinateur ? assignerPraticien : undefined}
-            onPlanifier={estCoordinateur ? planifier : undefined}
+            // Assignation et planification réservées au coordinateur : c'est son
+            // métier, et un praticien n'a pas la vision d'ensemble du planning.
+            onAssignerPraticien={coordinateur ? assignerPraticien : undefined}
+            onPlanifier={coordinateur ? planifier : undefined}
           />
         )}
 
-        {!chargement && role === "patient" && selection && (
+        {!chargement && session?.type === "patient" && selection && (
           <EspacePatient
             lignes={lignes}
             parcoursId={selection}
             fiche={fiche}
             onChangerPatient={setSelection}
             onEnvoyerFormulaire={envoyerFormulaire}
+            verrouille
           />
         )}
       </main>

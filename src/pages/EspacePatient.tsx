@@ -18,10 +18,12 @@ interface Props {
   fiche: FichePatient | null;
   onChangerPatient: (parcoursPatientId: string) => void;
   onEnvoyerFormulaire: (patientId: string, contenu: Record<string, string>) => void;
+  /** Vrai quand un patient est identifié : il ne voit que son propre dossier. */
+  verrouille?: boolean;
 }
 
 export function EspacePatient({
-  lignes, parcoursId, fiche, onChangerPatient, onEnvoyerFormulaire,
+  lignes, parcoursId, fiche, onChangerPatient, onEnvoyerFormulaire, verrouille = false,
 }: Props) {
   const [reponses, setReponses] = useState<Record<string, string>>({});
   const [modeEdition, setModeEdition] = useState(false);
@@ -43,6 +45,7 @@ export function EspacePatient({
 
   return (
     <>
+      {!verrouille && (
       <div className="patient-switch">
         <span className="muted" style={{ color: "var(--ink-faint)", fontSize: 13 }}>
           Démonstration, choisir le patient connecté :
@@ -55,6 +58,7 @@ export function EspacePatient({
           ))}
         </select>
       </div>
+      )}
 
       {!formulaireRempli && (
         <div className="banner">

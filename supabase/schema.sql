@@ -95,7 +95,9 @@ create table note_suivi (
   etape_patient_id    uuid references etape_patient(id) on delete set null,
   praticien_id        uuid references praticien(id),
   contenu             text not null,
-  cree_le             timestamptz not null default now()
+  cree_le             timestamptz not null default now(),
+  -- Interne par defaut : partager avec le patient est un acte delibere.
+  visible_patient     boolean not null default false
 );
 
 create index on etape_patient (parcours_patient_id);

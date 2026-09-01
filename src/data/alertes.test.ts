@@ -54,7 +54,7 @@ function cas(options: {
     : [];
   const notes: NoteSuivi[] = (options.notes ?? []).map((n, i) => ({
     id: `n${i}`, parcours_patient_id: "pp1", etape_patient_id: null,
-    praticien_id: null, contenu: "", cree_le: ilYA(1), ...n,
+    praticien_id: null, contenu: "", cree_le: ilYA(1), visible_patient: false, ...n,
   }));
 
   return calculerAlertes({

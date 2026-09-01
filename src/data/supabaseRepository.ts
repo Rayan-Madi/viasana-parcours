@@ -92,7 +92,7 @@ export class SupabaseRepository implements Repository {
     });
   }
 
-  async chargerFiche(parcoursPatientId: string): Promise<FichePatient | null> {
+  async chargerFiche(parcoursPatientId: string, pourPatient = false): Promise<FichePatient | null> {
     const [parcoursAll, patients, modeles, etapes, etapesModele, praticiens, formulaires, notes] =
       await Promise.all([
         this.table<ParcoursPatient>("parcours_patient"),
@@ -117,7 +117,9 @@ export class SupabaseRepository implements Repository {
       }))
       .sort((a, b) => a.modele.ordre - b.modele.ordre);
 
-    const notesParcours = notes.filter((n) => n.parcours_patient_id === parcours.id);
+    const notesParcours = notes
+      .filter((n) => n.parcours_patient_id === parcours.id)
+      .filter((n) => !pourPatient || n.visible_patient);
     const impliques = new Set<string>();
     lignes.forEach((l) => l.instance.praticien_id && impliques.add(l.instance.praticien_id));
     notesParcours.forEach((n) => n.praticien_id && impliques.add(n.praticien_id));
@@ -170,12 +172,14 @@ export class SupabaseRepository implements Repository {
     etapePatientId: string | null;
     praticienId: string | null;
     contenu: string;
+    visiblePatient: boolean;
   }): Promise<void> {
     const { error } = await this.db.from("note_suivi").insert({
       parcours_patient_id: input.parcoursPatientId,
       etape_patient_id: input.etapePatientId,
       praticien_id: input.praticienId,
       contenu: input.contenu,
+      visible_patient: input.visiblePatient,
     });
     if (error) throw error;
   }

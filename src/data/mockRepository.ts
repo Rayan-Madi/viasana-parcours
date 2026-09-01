@@ -70,7 +70,7 @@ export class MockRepository implements Repository {
     });
   }
 
-  async chargerFiche(parcoursPatientId: string): Promise<FichePatient | null> {
+  async chargerFiche(parcoursPatientId: string, pourPatient = false): Promise<FichePatient | null> {
     const parcours = seed.parcoursPatients.find((p) => p.id === parcoursPatientId);
     if (!parcours) return null;
 
@@ -94,6 +94,7 @@ export class MockRepository implements Repository {
       formulaire: this.formulaires.find((f) => f.patient_id === patient.id) ?? null,
       notes: this.notes
         .filter((n) => n.parcours_patient_id === parcoursPatientId)
+        .filter((n) => !pourPatient || n.visible_patient)
         .sort((a, b) => b.cree_le.localeCompare(a.cree_le))
         .map((n) => ({
           ...n,
@@ -124,6 +125,7 @@ export class MockRepository implements Repository {
     etapePatientId: string | null;
     praticienId: string | null;
     contenu: string;
+    visiblePatient: boolean;
   }): Promise<void> {
     this.notes.push({
       id: `nt-${Date.now()}`,
@@ -132,6 +134,7 @@ export class MockRepository implements Repository {
       praticien_id: input.praticienId,
       contenu: input.contenu,
       cree_le: new Date().toISOString(),
+      visible_patient: input.visiblePatient,
     });
   }
 

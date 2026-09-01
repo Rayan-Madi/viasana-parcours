@@ -48,14 +48,16 @@ export default function App() {
     }
   }, []);
 
+  const estPatient = session?.type === "patient";
+
   const rafraichirFiche = useCallback(async (id: string) => {
     try {
-      setFiche(await repository.chargerFiche(id));
+      setFiche(await repository.chargerFiche(id, estPatient));
       setErreur(null);
     } catch (e) {
       setErreur(e instanceof Error ? e.message : "Impossible de charger ce dossier.");
     }
-  }, []);
+  }, [estPatient]);
 
   useEffect(() => {
     rafraichirListe();
@@ -108,6 +110,7 @@ export default function App() {
     contenu: string,
     praticienId: string | null,
     etapePatientId: string | null,
+    visiblePatient: boolean,
   ) => {
     if (!selection) return;
     await repository.ajouterNote({
@@ -115,6 +118,7 @@ export default function App() {
       etapePatientId,
       praticienId,
       contenu,
+      visiblePatient,
     });
     await rafraichirTout();
   };

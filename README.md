@@ -86,6 +86,11 @@ Deux autres décisions :
 - **Une note peut être rattachée à une étape ou au parcours entier.** Un ostéopathe qui
   voit le patient hors parcours doit pouvoir laisser une trace, sinon l'information
   repart dans WhatsApp.
+- **Une note est interne par défaut.** Toutes les notes ne se destinent pas au patient :
+  « déséquilibre marqué côté droit, appui pronateur » s'adresse aux confrères, et
+  « patient injoignable depuis trois semaines » ne s'adresse qu'à l'équipe. Le partage est
+  donc une case à cocher, et le filtrage se fait dans la couche d'accès aux données, pas
+  dans la vue, pour qu'un écran ne puisse pas l'oublier.
 
 ---
 

@@ -73,6 +73,13 @@ export interface NoteSuivi {
   praticien_id: string | null;
   contenu: string;
   cree_le: string;
+  /**
+   * Une note est interne par défaut. Le partage avec le patient est un acte
+   * délibéré : « déséquilibre marqué côté droit, appui pronateur » se destine
+   * aux confrères, « patient injoignable depuis trois semaines » ne se destine
+   * à personne d'autre qu'à l'équipe.
+   */
+  visible_patient: boolean;
 }
 
 /** Ligne de la liste praticien : tout ce qu'il faut sans ouvrir la fiche. */

@@ -180,22 +180,22 @@ insert into reponse_formulaire (patient_id, soumis_le, contenu) values
      "Chaussures utilisées": "Drop 10 mm"}'::jsonb);
 
 -- ------------------------------------------------------------- notes
-insert into note_suivi (parcours_patient_id, praticien_id, contenu, cree_le) values
+insert into note_suivi (parcours_patient_id, praticien_id, contenu, cree_le, visible_patient) values
   ('c0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000001',
    'Bilan réalisé. Déséquilibre marqué côté droit, appui pronateur. Charge à réduire de 20 % pendant trois semaines avant reprise progressive.',
-   now() - interval '32 days'),
+   now() - interval '32 days', true),
   ('c0000000-0000-4000-8000-000000000001', 'a0000000-0000-4000-8000-000000000003',
    'Séance ostéo réalisée hors parcours à la demande de la patiente. Mobilité cheville droite améliorée, à revoir dans un mois.',
-   now() - interval '14 days'),
+   now() - interval '14 days', true),
   ('c0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000001',
    'Analyse de foulée : cadence 168 pas par minute, attaque talon marquée. Travail de cadence proposé, cible 175.',
-   now() - interval '30 days'),
+   now() - interval '30 days', true),
   ('c0000000-0000-4000-8000-000000000003', 'a0000000-0000-4000-8000-000000000004',
    'Point diététique : apports glucidiques insuffisants sur les sorties longues. Plan de ravitaillement transmis.',
-   now() - interval '8 days'),
+   now() - interval '8 days', true),
   ('c0000000-0000-4000-8000-000000000006', 'a0000000-0000-4000-8000-000000000005',
    'Patient injoignable depuis trois semaines. Parcours mis en pause, relance prévue début du mois prochain.',
-   now() - interval '21 days');
+   now() - interval '21 days', false);
 
 -- Rattache les notes qui concernent une etape precise, pour refleter le
 -- jeu en memoire : une observation de bilan appartient au bilan, pas au

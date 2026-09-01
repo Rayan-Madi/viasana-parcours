@@ -382,3 +382,15 @@ dl.facts dd { margin: 0; }
   border-radius: 999px;
   padding: 2px 8px;
 }
+
+.partage { display: flex; align-items: center; gap: 8px; font-size: 13px; color: var(--ink-soft); }
+.partage input { width: 15px; height: 15px; accent-color: var(--accent); }
+.partage-aide { color: var(--ink-faint); font-size: 12.5px; }
+.note-interne {
+  margin-left: 8px;
+  font-size: 12px;
+  background: var(--now-bg);
+  color: var(--now);
+  border-radius: 999px;
+  padding: 2px 8px;
+}

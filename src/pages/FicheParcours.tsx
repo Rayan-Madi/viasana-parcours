@@ -15,6 +15,7 @@ interface Props {
     contenu: string,
     praticienId: string | null,
     etapePatientId: string | null,
+    visiblePatient: boolean,
   ) => void;
   onAssignerPraticien?: (etapePatientId: string, praticienId: string | null) => void;
   onPlanifier?: (etapePatientId: string, datePrevue: string | null) => void;
@@ -29,6 +30,8 @@ export function FicheParcours({
   // Une note peut concerner une étape précise ou le parcours dans son ensemble,
   // par exemple une séance réalisée hors parcours.
   const [rattachement, setRattachement] = useState("");
+  // Interne par défaut : partager avec le patient doit être un geste conscient.
+  const [visiblePatient, setVisiblePatient] = useState(false);
 
   const realisees = fiche.etapes.filter((e) => e.instance.statut === "realisee").length;
   const prochaines = fiche.etapes
@@ -38,8 +41,9 @@ export function FicheParcours({
   const soumettreNote = () => {
     const contenu = note.trim();
     if (!contenu) return;
-    onAjouterNote(contenu, auteur || null, rattachement || null);
+    onAjouterNote(contenu, auteur || null, rattachement || null, visiblePatient);
     setNote("");
+    setVisiblePatient(false);
   };
 
   /** Libellé de l'étape à laquelle une note est rattachée, s'il y en a une. */
@@ -200,6 +204,17 @@ export function FicheParcours({
                     Ajouter la note
                   </button>
                 </div>
+                <label className="partage">
+                  <input
+                    type="checkbox"
+                    checked={visiblePatient}
+                    onChange={(e) => setVisiblePatient(e.target.checked)}
+                  />
+                  Visible par le patient
+                  <span className="partage-aide">
+                    Par défaut la note reste interne à l&apos;équipe.
+                  </span>
+                </label>
               </div>
             )}
 
@@ -211,6 +226,9 @@ export function FicheParcours({
                     {n.praticienNom ?? "Équipe Via Sana"} &middot; {dateCourte(n.cree_le)}
                     {etapeDeLaNote(n.etape_patient_id) && (
                       <span className="note-etape">{etapeDeLaNote(n.etape_patient_id)}</span>
+                    )}
+                    {!lectureSeule && !n.visible_patient && (
+                      <span className="note-interne">interne</span>
                     )}
                   </div>
                   <div className="note-body">{n.contenu}</div>

@@ -18,8 +18,12 @@ export interface Repository {
   /** Liste praticien, avec l'avancement déjà calculé. */
   listerPatients(): Promise<LignePatient[]>;
 
-  /** Fiche complète d'un parcours patient. */
-  chargerFiche(parcoursPatientId: string): Promise<FichePatient | null>;
+  /**
+   * Fiche complète d'un parcours patient.
+   * `pourPatient` masque les notes internes : la règle vit ici et non dans
+   * l'interface, pour qu'une vue ne puisse pas l'oublier.
+   */
+  chargerFiche(parcoursPatientId: string, pourPatient?: boolean): Promise<FichePatient | null>;
 
   /** Points bloquants, pour le coordinateur. */
   listerAlertes(): Promise<Alerte[]>;
@@ -33,6 +37,7 @@ export interface Repository {
     etapePatientId: string | null;
     praticienId: string | null;
     contenu: string;
+    visiblePatient: boolean;
   }): Promise<void>;
 
   enregistrerFormulaire(patientId: string, contenu: Record<string, string>): Promise<void>;

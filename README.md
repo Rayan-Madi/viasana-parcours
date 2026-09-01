@@ -16,6 +16,13 @@ npm test        # 12 tests sur les règles de détection
 npm run build   # production dans dist/
 ```
 
+Les fichiers SQL peuvent être appliqués sans passer par l'éditeur web, en renseignant
+`DATABASE_URL` dans un fichier `.env.local` non versionné :
+
+```bash
+npm run db:apply supabase/schema.sql supabase/seed.sql supabase/policies.sql
+```
+
 L'application démarre sur http://localhost:5174 avec un jeu de démonstration en mémoire.
 Aucun compte ni service externe n'est nécessaire. Le premier écran demande qui vous êtes :
 choisissez un praticien, le coordinateur Nadia Kessler, ou un patient.

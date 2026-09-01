@@ -111,6 +111,12 @@ src/
   components/ui.tsx     badges, progression, formats de date
 ```
 
+Deux points d'accessibilité ont été traités après mesure, pas au jugé. Le gris des
+informations secondaires plafonnait à 2,85:1 de contraste, sous le seuil WCAG AA de 4,5:1,
+il a été assombri. Et aucun indicateur de focus n'était visible, ce qui rend la navigation
+au clavier impossible à suivre : un contour apparaît désormais, via `:focus-visible` pour
+qu'il ne s'affiche qu'au clavier et pas au clic.
+
 L'application est utilisable sur téléphone. Ce n'est pas un détail cosmétique : un patient
 qui veut savoir quand est sa prochaine séance le fait depuis son téléphone, pas depuis un
 poste de travail. Sur petit écran, le sous-titre et l'indicateur de source disparaissent,

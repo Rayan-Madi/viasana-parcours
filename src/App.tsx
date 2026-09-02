@@ -108,15 +108,16 @@ export default function App() {
 
   const ajouterNote = async (
     contenu: string,
-    praticienId: string | null,
     etapePatientId: string | null,
     visiblePatient: boolean,
   ) => {
-    if (!selection) return;
+    // L'auteur vient de la session, jamais du formulaire : une note engage celui
+    // qui la signe, et un praticien ne doit pas pouvoir écrire au nom d'un autre.
+    if (!selection || session?.type !== "praticien") return;
     await repository.ajouterNote({
       parcoursPatientId: selection,
       etapePatientId,
-      praticienId,
+      praticienId: session.id,
       contenu,
       visiblePatient,
     });

@@ -63,7 +63,25 @@ l'oublier. En production, ce serait une politique de sécurité au niveau des li
 
 ---
 
-## 5. Toute la donnée passe par une seule interface
+## 5. L'auteur d'une note est celui qui la signe
+
+**Problème.** Le formulaire proposait un menu « Auteur » listant toute l'équipe, et il s'ouvrait
+sur le premier praticien de la liste plutôt que sur le connecté. Une note écrite par Samir Ben
+Ali sans toucher à ce menu était enregistrée sous le nom de Camille Renaud. Deux défauts pour
+une seule cause : une mauvaise attribution systématique, et la possibilité d'écrire sciemment
+au nom d'un autre. La valeur fausse se propageait ensuite dans « Praticiens impliqués », qui se
+déduit en partie des auteurs de notes.
+
+**Choix.** L'auteur vient de la session, jamais du formulaire. Le menu a disparu.
+
+**Où vit la règle.** Dans la signature de `onAjouterNote`, qui ne reçoit plus de `praticienId`.
+Le corriger dans `App` aurait suffi à l'exécution ; retirer le paramètre rend en plus l'erreur
+inexprimable à la compilation, puisque le composant n'a plus de quoi désigner quelqu'un. Sur un
+produit réel, l'auteur serait imposé par la base à partir de l'utilisateur authentifié.
+
+---
+
+## 6. Toute la donnée passe par une seule interface
 
 **Problème.** Faire dépendre la démonstration d'un compte Supabase la rend fragile, et coder
 directement contre Supabase interdit de tester sans réseau.
@@ -79,7 +97,7 @@ règles de détection des alertes, elles, sont partagées via une fonction pure.
 
 ---
 
-## 6. Le coordinateur est un rôle à part entière
+## 7. Le coordinateur est un rôle à part entière
 
 **Problème.** L'assignation d'un praticien était accessible à tous, ce qui ne correspond ni à
 l'offre Via Sana ni à la réalité.
@@ -94,7 +112,7 @@ rendez-vous et s'assure que les praticiens partagent les documents ».
 
 ---
 
-## 7. Le praticien voit ses patients, sans être enfermé
+## 8. Le praticien voit ses patients, sans être enfermé
 
 **Problème.** Un praticien noyé dans les patients des autres ne trouve pas les siens. Mais un
 cloisonnement strict reproduirait le problème de départ : dans un parcours coordonné, savoir
@@ -105,7 +123,7 @@ interdire.
 
 ---
 
-## 8. Une identification, pas une authentification
+## 9. Une identification, pas une authentification
 
 **Problème.** Une vraie authentification représente une journée de travail, et obligerait le
 relecteur à se connecter pour voir la démonstration.
@@ -118,7 +136,7 @@ niveau des lignes, pour que la base fasse respecter la règle.
 
 ---
 
-## 9. RLS activé avec des politiques ouvertes plutôt que désactivé
+## 10. RLS activé avec des politiques ouvertes plutôt que désactivé
 
 **Problème.** Supabase active la sécurité au niveau des lignes par défaut. Sans politique, les
 tables répondent 200 avec un tableau vide, sans aucune erreur. Symptôme déroutant, rencontré
@@ -132,7 +150,7 @@ commentaire les politiques de production, restreintes à l'utilisateur authentif
 
 ---
 
-## 10. Des tests sur une seule chose
+## 11. Des tests sur une seule chose
 
 **Problème.** Tout tester en trois jours n'a pas de sens. Ne rien tester non plus.
 
@@ -143,7 +161,7 @@ qui ne se déclenche pas, personne ne la voit. Un bug d'affichage, si.
 
 ---
 
-## 11. Ce que je n'ai pas fait, et pourquoi
+## 12. Ce que je n'ai pas fait, et pourquoi
 
 **La prise de rendez-vous.** Les dates sont saisissables, mais il n'y a pas d'agenda. C'est un
 chantier à part entière, généralement connecté à l'existant des praticiens.
@@ -161,7 +179,7 @@ n'aide pas à lire l'information lui coûte du temps.
 
 ---
 
-## 12. Deux limites techniques connues
+## 13. Deux limites techniques connues
 
 **Une trentaine de requêtes à l'ouverture.** L'implémentation Supabase charge chaque table
 séparément puis joint en JavaScript. Ça tient à six patients, pas à mille. La correction est
@@ -175,7 +193,7 @@ l'essentiel des 111 ko compressés. Corrections possibles : n'importer que
 
 ---
 
-## 13. Deux corrections d'accessibilité, mesurées
+## 14. Deux corrections d'accessibilité, mesurées
 
 Le gris des informations secondaires donnait un contraste de 2,85:1 sur le fond, sous le seuil
 WCAG AA de 4,5:1. Assombri, mesuré à 4,51:1.

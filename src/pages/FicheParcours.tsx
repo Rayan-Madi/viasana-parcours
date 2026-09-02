@@ -11,9 +11,12 @@ interface Props {
   lectureSeule?: boolean;
   onRetour?: () => void;
   onChangerStatut: (etapePatientId: string, statut: StatutEtape) => void;
+  /**
+   * L'auteur n'est volontairement pas un paramètre : il est déduit de la session
+   * par App. Le formulaire est ainsi incapable de désigner quelqu'un d'autre.
+   */
   onAjouterNote: (
     contenu: string,
-    praticienId: string | null,
     etapePatientId: string | null,
     visiblePatient: boolean,
   ) => void;
@@ -26,7 +29,6 @@ export function FicheParcours({
   onAssignerPraticien, onPlanifier,
 }: Props) {
   const [note, setNote] = useState("");
-  const [auteur, setAuteur] = useState(praticiens[0]?.id ?? "");
   // Une note peut concerner une étape précise ou le parcours dans son ensemble,
   // par exemple une séance réalisée hors parcours.
   const [rattachement, setRattachement] = useState("");
@@ -41,7 +43,7 @@ export function FicheParcours({
   const soumettreNote = () => {
     const contenu = note.trim();
     if (!contenu) return;
-    onAjouterNote(contenu, auteur || null, rattachement || null, visiblePatient);
+    onAjouterNote(contenu, rattachement || null, visiblePatient);
     setNote("");
     setVisiblePatient(false);
   };
@@ -181,13 +183,6 @@ export function FicheParcours({
                   onChange={(e) => setNote(e.target.value)}
                 />
                 <div className="row">
-                  <select value={auteur} onChange={(e) => setAuteur(e.target.value)} aria-label="Auteur">
-                    {praticiens.map((p) => (
-                      <option key={p.id} value={p.id}>
-                        {p.nom} — {SPECIALITES[p.specialite]}
-                      </option>
-                    ))}
-                  </select>
                   <select
                     value={rattachement}
                     onChange={(e) => setRattachement(e.target.value)}
